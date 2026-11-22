@@ -47,7 +47,7 @@ nginx-check:
 deploy-static: check-env frontend-build
 	sudo mkdir -p /var/www/pygmalion/dist
 	sudo rsync -a --delete Interface/dist/ /var/www/pygmalion/dist/
-	sudo install -m 0644 Infrastructure/nginx/pygmalion.conf /etc/nginx/sites-available/pygmalion
-	sudo ln -sfn /etc/nginx/sites-available/pygmalion /etc/nginx/sites-enabled/pygmalion
+	sudo mkdir -p /etc/nginx/conf.d
+	sudo install -m 0644 Infrastructure/nginx/pygmalion.conf /etc/nginx/conf.d/pygmalion.conf
 	sudo nginx -t
 	sudo systemctl reload nginx

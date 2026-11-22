@@ -40,8 +40,9 @@ file; changing any generation input creates a distinct saved result. GitHub
 Actions runs tests and builds the UI and containers; on a successful push to
 `main`, it deploys when `DEPLOY_HOST` is configured. The deploy job syncs source
 without overwriting the server's `.env`, starts the Compose stack, publishes the
-static UI to `/var/www/pygmalion/dist`, installs the Nginx site, validates it,
-and reloads Nginx.
+static UI to `/var/www/pygmalion/dist`, installs the Nginx server block at
+`/etc/nginx/conf.d/pygmalion.conf`, validates it, and reloads Nginx. This uses
+the standard `conf.d` include directory and creates it if it is missing.
 
 Provision Docker Compose, Nginx, and the Cloudflare certificate files on the host
 before enabling deployment. The SSH deployment account needs Docker access and
