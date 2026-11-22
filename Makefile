@@ -19,14 +19,16 @@ check-env:
 	@test $${#POSTGRES_PASSWORD} -ge 24 || (echo "POSTGRES_PASSWORD must contain at least 24 characters." && exit 1)
 
 test:
-	dotnet test Backend-Api/Backend-Api.Tests/Backend-Api.Tests.csproj --configuration Release
+	docker build --file Infrastructure/docker/test.Dockerfile --tag pygmalion-tests .
+	docker run --rm pygmalion-tests
 
 frontend-build:
-	npm --prefix Interface ci
-	npm --prefix Interface run build
+	docker run --rm -v "$(CURDIR):/workspace" -w /workspace/Interface \
+		-e VITE_API_BASE_URL="$(VITE_API_BASE_URL)" \
+		-e VITE_DONATE_URL="$(VITE_DONATE_URL)" \
+		node:22-alpine sh -c "npm ci && npm run build"
 
-build: frontend-build
-	dotnet publish Backend-Api/Backend-Api.csproj --configuration Release --output Backend-Api/publish
+build: frontend-build docker-build
 
 docker-build: check-env
 	$(COMPOSE) build
@@ -37,7 +39,7 @@ up: check-env
 down:
 	$(COMPOSE) down
 
-prod: test check-env build docker-build
+prod: test check-env build
 
 nginx-check:
 	sudo nginx -t

@@ -50,9 +50,9 @@ and other runtime settings in the ignored root `.env` on the host.
 
 Configure these GitHub repository **Variables**:
 
-- `DEPLOY_HOST` — production server hostname or IP; enables the deploy job.
-- `DEPLOY_USER` — SSH deployment account.
-- `DEPLOY_PATH` — optional checkout location; defaults to `/opt/pygmalion`.
+- `DEPLOY_HOST` — set to `84.8.219.142`; enables the deploy job.
+- `DEPLOY_USER` — optional SSH account override; defaults to `ubuntu`.
+- `DEPLOY_PATH` — optional checkout location; defaults to `/home/ubuntu/pygmalion`.
 - `VITE_DONATE_URL` — optional sponsor-link override.
 
 Configure these GitHub repository **Secrets**:
