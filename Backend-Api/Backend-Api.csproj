@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Backend_Api</RootNamespace>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.6.2" />
+    <PackageReference Include="Bogus" Version="35.6.5" />
+    <PackageReference Include="TreeSitter.DotNet" Version="1.3.0" />
+    <PackageReference Include="XbergIo.TreeSitterLanguagePack" Version="1.27.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Backend-Api.Tests/**/*.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_DONATE_URL: ${{ vars.VITE_DONATE_URL || 'https://github.com/sponsors/mohammedbourass-youssef' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Interface/package-lock.json
+
+      - name: Run backend tests
+        run: dotnet test Backend-Api/Backend-Api.Tests/Backend-Api.Tests.csproj --configuration Release
+
+      - name: Build frontend
+        run: npm ci --prefix Interface && npm run build --prefix Interface
+        env:
+          VITE_API_BASE_URL: ""
+
+      - name: Validate Compose configuration
+        run: docker compose --env-file .env.example -f Infrastructure/docker-compose.yml config --quiet
+
+      - name: Validate production Nginx configuration
+        run: |
+          mkdir -p /tmp/pygmalion-certs
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+            -subj "/CN=pygmalion.mohammedbourass.me" \
+            -keyout /tmp/pygmalion-certs/pygmalion.key \
+            -out /tmp/pygmalion-certs/pygmalion.pem
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/Infrastructure/nginx/pygmalion.conf:/etc/nginx/conf.d/default.conf:ro" \
+            -v "/tmp/pygmalion-certs:/etc/ssl/cloudflare:ro" \
+            nginx:1.27-alpine nginx -t
+
+      - name: Build production containers
+        run: docker compose --env-file .env.example -f Infrastructure/docker-compose.yml build
+
+  deploy-production:
+    name: Deploy production
+    needs: test-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_HOST != ''
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/pygmalion' }}
+      VITE_DONATE_URL: ${{ vars.VITE_DONATE_URL || 'https://github.com/sponsors/mohammedbourass-youssef' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Interface/package-lock.json
+
+      - name: Build static UI for host Nginx
+        run: npm ci --prefix Interface && npm run build --prefix Interface
+        env:
+          VITE_API_BASE_URL: ""
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Configure verified host key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Sync application source
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH' && test -f '$DEPLOY_PATH/.env'"
+          rsync -az --delete --filter='P /.env' \
+            --exclude='.git/' --exclude='**/node_modules/' --exclude='**/bin/' \
+            --exclude='**/obj/' --exclude='**/dist/' --exclude='**/publish/' \
+            ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+
+      - name: Sync built UI assets
+        run: rsync -az --delete Interface/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/.deploy-dist/"
+
+      - name: Deploy containers and reload Nginx
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && \
+            docker compose --env-file .env -f Infrastructure/docker-compose.yml up -d --build && \
+            sudo mkdir -p /var/www/pygmalion/dist && \
+            sudo rsync -a --delete .deploy-dist/ /var/www/pygmalion/dist/ && \
+            sudo install -m 0644 Infrastructure/nginx/pygmalion.conf /etc/nginx/sites-available/pygmalion && \
+            sudo ln -sfn /etc/nginx/sites-available/pygmalion /etc/nginx/sites-enabled/pygmalion && \
+            sudo nginx -t && sudo systemctl reload nginx"

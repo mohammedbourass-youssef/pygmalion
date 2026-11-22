@@ -1,0 +1,47 @@
+<svg width="430" height="96" viewBox="0 0 430 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="b_fire" x1="22" y1="80" x2="74" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="55%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE047" />
+    </linearGradient>
+    <linearGradient id="b_ring" x1="8" y1="8" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+  </defs>
+
+  
+  <circle cx="48" cy="48" r="40" fill="#0F172A" stroke="url(#b_ring)" stroke-width="4" />
+
+  
+  <path d="M25 46C22 35 29 25 37 22L33 32L23 36C22.5 40 23 43 25 46Z" fill="url(#b_fire)" />
+  <path d="M71 46C74 35 67 25 59 22L63 32L73 36C73.5 40 73 43 71 46Z" fill="url(#b_fire)" />
+
+  
+  <path d="M33 25L40 31H56L63 25L64.5 39C64.5 50 57.5 60 48 64C38.5 60 31.5 50 31.5 39L33 25Z" fill="#F8FAFC" />
+  <path d="M35 34C35 31.5 39 30 48 33.5C57 30 61 31.5 61 34C61 40 56 44 48 44C40 44 35 40 35 34Z" fill="#0F172A" />
+
+  
+  <circle cx="41.5" cy="36.5" r="3.8" fill="url(#b_fire)" />
+  <circle cx="54.5" cy="36.5" r="3.8" fill="url(#b_fire)" />
+  <circle cx="41.5" cy="36.5" r="1.4" fill="#0F172A" />
+  <circle cx="54.5" cy="36.5" r="1.4" fill="#0F172A" />
+  <path d="M45.5 41H50.5L48 47L45.5 41Z" fill="#F59E0B" />
+
+  
+  <path d="M40.5 51L48 56L55.5 51" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M42.5 56.5L48 60L53.5 56.5" stroke="#EA580C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+
+  
+  <rect x="34" y="67" width="28" height="4" rx="2" fill="url(#b_fire)" />
+  <rect x="39" y="73" width="18" height="3" rx="1.5" fill="#EA580C" opacity="0.85" />
+
+  
+  <text x="104" y="54" fill="#F8FAFC" font-family="system-ui, -apple-system, &#39;Segoe UI&#39;, Roboto, sans-serif" font-size="34" font-weight="800" letter-spacing="2.5">
+    PYGMALION
+  </text>
+  <text x="106" y="74" fill="#F59E0B" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="12" font-weight="600" letter-spacing="1.8">
+    AST-TO-DATA SYNTHESIS ENGINE
+  </text>
+</svg>

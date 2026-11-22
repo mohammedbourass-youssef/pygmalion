@@ -1,0 +1,23 @@
+@Backend_Api_HostAddress = http://localhost:5223
+
+POST {{Backend_Api_HostAddress}}/Pygmalion/api/create
+Content-Type: application/json
+
+{
+  "language": "JAVA",
+  "code": "public class Person { private int id; private String name; }",
+  "numberOfRoots": 10,
+  "countNested": 40
+}
+
+###
+
+POST {{Backend_Api_HostAddress}}/Pygmalion/api/create
+Content-Type: application/json
+
+{
+  "language": "DART",
+  "code": "class Person { int id; String name; }",
+  "numberOfRoots": 1,
+  "countNested": 1
+}

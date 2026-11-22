@@ -1,0 +1,23 @@
+/* Keep the complete backend-returned URL visible rather than ellipsizing it. */
+.path-card{align-items:flex-start}
+.path-content{flex:1;min-width:0}
+.path-main{display:flex;align-items:center;gap:16px}
+.path-copy{align-self:center;flex:1;min-width:0}
+.path-copy code{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;line-height:1.7;user-select:text}
+.path-actions{display:flex;align-items:center;gap:8px;flex:none}
+.path-copy-button{height:40px;padding:0 13px;display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(245,158,11,.34);border-radius:10px;background:rgba(245,158,11,.08);color:#FCD34D;font-size:13px;font-weight:600;transition:all .2s ease-out}
+.path-copy-button:hover{background:rgba(245,158,11,.17);border-color:rgba(245,158,11,.6)}
+.path-copy-button svg{color:#F59E0B}
+.path-help-button{height:30px;width:30px;padding:0;display:grid;place-items:center;border:1px solid #39485D;border-radius:50%;background:#111827;color:#CBD5E1;font-size:16px;font-weight:600;transition:all .2s ease-out}
+.path-help-button:hover,.path-help-button.active{border-color:#F59E0B;color:#FCD34D;background:rgba(245,158,11,.1)}
+.path-help{margin-top:13px;padding:12px 14px;border:1px solid rgba(245,158,11,.2);border-radius:10px;background:rgba(9,13,22,.55);color:#CBD5E1;font-size:14px;line-height:1.65;animation:reveal .2s ease-out}
+.path-help-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.path-help b{color:#F8FAFC;font-weight:600}
+.path-help p{margin:9px 0 0;color:#CBD5E1;font-size:14px;line-height:1.65}
+.path-help strong{color:#F8FAFC;font-weight:600}
+.path-help code{font:13px var(--mono);color:#FCD34D;background:rgba(245,158,11,.1);padding:2px 5px;border-radius:4px}
+.language-chip{border:1px solid rgba(245,158,11,.28);border-radius:7px;padding:4px 8px;background:rgba(245,158,11,.09);color:#FCD34D;font:12px var(--mono)}
+.path-help pre{margin:11px 0 8px;padding:12px 14px;overflow:auto;border:1px solid #1E293B;border-radius:9px;background:#060911;color:#34D399;font:13px/1.7 var(--mono)}
+.path-help pre code{padding:0;background:none;color:inherit;white-space:pre}
+.path-help-note{font-size:12px;color:#CBD5E1}
+@media(max-width:680px){.path-card{align-items:flex-start}.path-main{flex-wrap:wrap;gap:10px}.path-copy{align-self:center;flex-basis:100%}.path-copy code{font-size:13px;line-height:1.6}.path-actions{margin-left:auto}.path-help{font-size:13px}}

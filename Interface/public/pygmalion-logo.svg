@@ -1,0 +1,57 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    
+    <linearGradient id="pyg_fire" x1="32" y1="104" x2="96" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="55%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE047" />
+    </linearGradient>
+
+    
+    <linearGradient id="pyg_marble" x1="64" y1="26" x2="64" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#CBD5E1" />
+    </linearGradient>
+
+    
+    <linearGradient id="pyg_ring" x1="12" y1="12" x2="116" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="50%" stop-color="#EA580C" />
+      <stop offset="100%" stop-color="#7C2D12" />
+    </linearGradient>
+  </defs>
+
+  
+  <circle cx="64" cy="64" r="58" fill="#0F172A" stroke="url(#pyg_ring)" stroke-width="5" />
+  <circle cx="64" cy="64" r="49" stroke="#1E293B" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  
+  <path d="M30 62C26 46 36 32 48 28L42 42L28 48C27 53 28 58 30 62Z" fill="url(#pyg_fire)" />
+  <path d="M98 62C102 46 92 32 80 28L86 42L100 48C101 53 100 58 98 62Z" fill="url(#pyg_fire)" />
+
+  
+  
+  <path d="M42 32L52 40H76L86 32L88 52C88 68 78 82 64 88C50 82 40 68 40 52L42 32Z" fill="url(#pyg_marble)" />
+
+  
+  <path d="M45 45C45 41 51 39 64 44C77 39 83 41 83 45C83 54 76 60 64 60C52 60 45 54 45 45Z" fill="#0F172A" />
+
+  
+  <circle cx="54" cy="49" r="5.5" fill="url(#pyg_fire)" />
+  <circle cx="74" cy="49" r="5.5" fill="url(#pyg_fire)" />
+  <circle cx="54" cy="49" r="2" fill="#0F172A" />
+  <circle cx="74" cy="49" r="2" fill="#0F172A" />
+
+  
+  <path d="M60 55H68L64 64L60 55Z" fill="#F59E0B" />
+
+  
+  <path d="M53 69L64 76L75 69" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M56 77L64 82L72 77" stroke="#EA580C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  
+  <rect x="44" y="92" width="40" height="5.5" rx="2.75" fill="url(#pyg_fire)" />
+  <rect x="51" y="100.5" width="26" height="4" rx="2" fill="#EA580C" opacity="0.85" />
+  
+  <path d="M55 87V92M59 87V92M69 87V92M73 87V92" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round" />
+</svg>

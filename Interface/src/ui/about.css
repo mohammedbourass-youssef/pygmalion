@@ -1,0 +1,43 @@
+.donate-button{padding:10px 16px;border:1px solid rgba(245,158,11,.42);border-radius:12px;background:rgba(245,158,11,.10);color:#FCD34D;font-size:15px;font-weight:600;box-shadow:0 0 20px rgba(245,158,11,.06)}
+.donate-button:hover{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.72);color:#FDE68A;transform:translateY(-1px);box-shadow:0 6px 22px rgba(245,158,11,.13)}
+.donate-button svg,.footer-donate svg{color:#F59E0B}
+.about-section{padding:30px 0 8px;display:grid;gap:24px;animation:reveal .3s ease-out}
+.about-intro,.about-card{background:linear-gradient(145deg,rgba(17,24,39,.98),rgba(15,22,35,.98));border:1px solid #1F2937;border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.12)}
+.about-intro{padding:31px 34px;display:flex;align-items:center;justify-content:space-between;gap:35px;min-height:240px}
+.about-copy{max-width:1040px}
+.about-copy h2{font:700 30px/1.2 'Space Grotesk',sans-serif;letter-spacing:-.7px;margin:8px 0 11px;color:#F8FAFC}
+.about-copy>p,.about-card>p{font-size:16px;line-height:1.8;color:#CBD5E1;margin:0}
+.roadmap-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}
+.roadmap-pills>span{display:inline-flex;align-items:center;gap:8px;min-height:39px;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:600}
+.roadmap-pills b{font-weight:400;opacity:.7}
+.available-pill{color:#A7F3D0;border:1px solid rgba(16,185,129,.27);background:rgba(6,78,59,.2)}
+.available-pill svg{color:#10B981}
+.roadmap-pill{color:#FCD34D;border:1px solid rgba(245,158,11,.27);background:rgba(120,53,15,.15)}
+.roadmap-pill svg{color:#F59E0B}
+.about-emblem{flex:none;width:142px;height:142px;border-radius:29px;border:1px solid rgba(245,158,11,.2);background:radial-gradient(circle at 50% 30%,rgba(245,158,11,.13),transparent 65%),#0C1320;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 0 50px rgba(245,158,11,.07)}
+.about-emblem img{width:67px;height:67px}
+.about-emblem span{font:12px var(--mono);letter-spacing:1.1px;color:#CBD5E1}
+.about-emblem i{font-style:normal;color:#F59E0B}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.about-card{padding:27px 29px;display:flex;flex-direction:column}
+.about-card-heading{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+.about-icon{height:43px;width:43px;display:grid;place-items:center;flex:none;border:1px solid rgba(245,158,11,.23);border-radius:13px;background:rgba(245,158,11,.08);color:#F59E0B}
+.about-card-heading .section-kicker{margin-bottom:4px}
+.about-card-heading h3{font:600 21px/1.25 'Space Grotesk',sans-serif;letter-spacing:-.3px;margin:0;color:#F8FAFC}
+.about-card>p{font-size:15px;line-height:1.8;margin-bottom:14px}
+.about-donate{align-self:flex-start;margin-top:auto;padding:13px 17px;border-radius:12px;background:linear-gradient(105deg,#F59E0B,#EA580C);color:#090D16;font-size:15px;font-weight:700;box-shadow:0 9px 24px rgba(245,158,11,.15)}
+.about-donate:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(245,158,11,.25);filter:brightness(1.05)}
+.about-donate svg:last-child{margin-left:5px}
+.scenario-list{display:grid;gap:12px}
+.scenario{display:flex;align-items:flex-start;gap:13px;padding:12px;border:1px solid rgba(51,65,85,.64);border-radius:12px;background:rgba(9,13,22,.27);transition:all .2s ease-out}
+.scenario:hover{border-color:#384960;background:rgba(9,13,22,.5);transform:translateX(2px)}
+.scenario-icon{height:37px;width:37px;display:grid;place-items:center;flex:none;border-radius:11px;background:rgba(245,158,11,.08);color:#F59E0B}
+.scenario h4{font-size:15px;font-weight:600;color:#F8FAFC;margin:0 0 4px}
+.scenario p{font-size:14px;line-height:1.55;color:#CBD5E1;margin:0}
+.footer-links{display:flex;align-items:center;gap:21px}
+.footer-links a{display:inline-flex;align-items:center;gap:7px;color:#CBD5E1;text-decoration:none;font:14px 'DM Sans',sans-serif;transition:all .2s ease-out}
+.footer-links a:hover{color:#F8FAFC}
+.footer-links .footer-donate{color:#FCD34D}
+.footer-links .footer-donate:hover{color:#FDE68A}
+@media(max-width:900px){.about-intro{padding:27px}.about-emblem{width:112px;height:112px;border-radius:24px}.about-emblem img{width:55px;height:55px}.about-grid{gap:18px}.about-card{padding:23px}.about-card-heading h3{font-size:19px}.roadmap-pills>span{font-size:13px}}
+@media(max-width:680px){.donate-button{font-size:0;width:38px;height:38px;padding:0;gap:0;border-radius:10px}.donate-button svg{width:17px}.about-section{padding-top:23px;gap:15px}.about-intro{padding:21px 18px;min-height:0}.about-copy h2{font-size:25px}.about-copy>p{font-size:15px;line-height:1.7}.about-emblem{display:none}.roadmap-pills{margin-top:15px;gap:8px}.roadmap-pills>span{font-size:12px;line-height:1.45;padding:8px 9px}.about-grid{grid-template-columns:1fr;gap:15px}.about-card{padding:20px 17px}.about-card-heading h3{font-size:19px}.about-card>p{font-size:15px;line-height:1.72}.about-donate{width:100%;justify-content:center;font-size:14px;padding:12px}.scenario-list{gap:9px}.scenario{padding:10px;gap:10px}.scenario h4{font-size:14px}.scenario p{font-size:13px;line-height:1.55}.scenario-icon{width:34px;height:34px}.footer-links{gap:10px}.footer-links a{font-size:11px}.footer-links a:first-child{display:none}.page-footer{align-items:flex-start}}

@@ -1,0 +1,25 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Build outputs and dependency caches
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/coverage/
+**/output/
+**/publish/
+*.tsbuildinfo
+
+# Local IDE/OS files
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# TLS keys/certificates must stay on the deployment host
+*.pem
+*.key
