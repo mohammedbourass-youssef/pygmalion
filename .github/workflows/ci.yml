@@ -54,15 +54,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Build static UI for host Nginx
-        run: |
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -w /workspace/Interface \
-            -e VITE_API_BASE_URL="" \
-            -e VITE_DONATE_URL="$VITE_DONATE_URL" \
-            node:22-alpine sh -c "npm ci && npm run build"
-
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -82,15 +73,8 @@ jobs:
             --exclude='**/obj/' --exclude='**/dist/' --exclude='**/publish/' \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
 
-      - name: Sync built UI assets
-        run: rsync -az --delete Interface/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/.deploy-dist/"
-
-      - name: Deploy containers and reload Nginx
+      - name: Deploy containers, including Nginx
         run: |
           ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && \
             docker compose --env-file .env -f Infrastructure/docker-compose.yml up -d --build && \
-            sudo mkdir -p /var/www/pygmalion/dist && \
-            sudo rsync -a --delete .deploy-dist/ /var/www/pygmalion/dist/ && \
-            sudo mkdir -p /etc/nginx/conf.d && \
-            sudo install -m 0644 Infrastructure/nginx/pygmalion.conf /etc/nginx/conf.d/pygmalion.conf && \
-            sudo nginx -t && sudo systemctl reload nginx"
+            docker compose --env-file .env -f Infrastructure/docker-compose.yml exec -T nginx nginx -t"

@@ -21,17 +21,16 @@ Start the stack:
 make up
 ```
 
-- Container UI: http://localhost:3000 (local reverse-proxy smoke check)
-- API: http://127.0.0.1:5050
-- Production site: https://pygmalion.mohammedbourass.me (after host Nginx setup)
+- Container UI: http://localhost:3000 (local interface check)
+- API: http://127.0.0.1:5050 (local API check)
+- Production site: https://pygmalion.mohammedbourass.me (Nginx container on ports 80/443)
 - PostgreSQL: private to the Compose network (database `pygmalion`)
 
 Compose stores PostgreSQL data in `pygmalion-postgres` and generated JSON files
-in `pygmalion-output`. The Compose API port binds to localhost only; the supplied
-host Nginx config proxies public HTTPS `/api/` traffic to it. Run `make up` to
-start the containers. Install the Cloudflare origin certificate at the configured
-host paths and publish the built `Interface/dist` directory at
-`/var/www/pygmalion/dist`, then run `make deploy-static`.
+in `pygmalion-output`. The Compose API and interface ports bind to localhost;
+the Nginx container is the public TLS reverse proxy for the interface and API.
+Place the Cloudflare origin certificate and key on the server at the paths set by
+`TLS_CERT_PATH` and `TLS_KEY_PATH` in `.env` before starting the stack.
 
 The API creates the initial EF Core schema at startup. Each saved generation is
 indexed by a SHA-256 hash of language, source code, root count, and nested count.
@@ -39,15 +38,13 @@ Repeat generation requests with identical inputs return the original GUID and
 file; changing any generation input creates a distinct saved result. GitHub
 Actions runs tests and builds the UI and containers; on a successful push to
 `main`, it deploys when `DEPLOY_HOST` is configured. The deploy job syncs source
-without overwriting the server's `.env`, starts the Compose stack, publishes the
-static UI to `/var/www/pygmalion/dist`, installs the Nginx server block at
-`/etc/nginx/conf.d/pygmalion.conf`, validates it, and reloads Nginx. This uses
-the standard `conf.d` include directory and creates it if it is missing.
+without overwriting the server's `.env`, then rebuilds and starts the Compose
+stack, including its Nginx TLS proxy. No host Nginx installation is needed.
 
-Provision Docker Compose, Nginx, and the Cloudflare certificate files on the host
-before enabling deployment. The SSH deployment account needs Docker access and
-passwordless sudo for the Nginx install/reload commands. Keep `POSTGRES_PASSWORD`
-and other runtime settings in the ignored root `.env` on the host.
+Provision Docker Compose and the Cloudflare certificate files on the host before
+enabling deployment. The SSH deployment account needs Docker access. Keep
+`POSTGRES_PASSWORD` and other runtime settings in the ignored root `.env` on the
+host.
 
 Configure these GitHub repository **Variables**:
 

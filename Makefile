@@ -7,10 +7,10 @@ endif
 
 COMPOSE = docker compose --env-file .env -f Infrastructure/docker-compose.yml
 
-.PHONY: help check-env test frontend-build build docker-build up down prod nginx-check deploy-static
+.PHONY: help check-env test frontend-build build docker-build up down prod nginx-check
 
 help:
-	@echo "Pygmalion targets: test, frontend-build, build, docker-build, up, down, prod, nginx-check, deploy-static"
+	@echo "Pygmalion targets: test, frontend-build, build, docker-build, up, down, prod, nginx-check"
 
 check-env:
 	@test -f .env || (echo "Missing root .env. Copy .env.example to .env and configure it." && exit 1)
@@ -42,12 +42,4 @@ down:
 prod: test check-env build
 
 nginx-check:
-	sudo nginx -t
-
-deploy-static: check-env frontend-build
-	sudo mkdir -p /var/www/pygmalion/dist
-	sudo rsync -a --delete Interface/dist/ /var/www/pygmalion/dist/
-	sudo mkdir -p /etc/nginx/conf.d
-	sudo install -m 0644 Infrastructure/nginx/pygmalion.conf /etc/nginx/conf.d/pygmalion.conf
-	sudo nginx -t
-	sudo systemctl reload nginx
+	$(COMPOSE) exec nginx nginx -t
