@@ -40,7 +40,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapGet("/health", async (PygmalionDbContext database, CancellationToken cancellationToken) =>
+app.MapGet("/health", async (
+    PygmalionDbContext database,
+    ILogger<Program> logger,
+    CancellationToken cancellationToken) =>
 {
     try
     {
@@ -48,8 +51,9 @@ app.MapGet("/health", async (PygmalionDbContext database, CancellationToken canc
             ? Results.Ok(new { status = "healthy" })
             : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
     }
-    catch
+    catch (Exception exception)
     {
+        logger.LogError(exception, "Backend readiness check could not connect to PostgreSQL.");
         return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
     }
 });
