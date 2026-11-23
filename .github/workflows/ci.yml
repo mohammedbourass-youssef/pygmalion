@@ -68,7 +68,7 @@ jobs:
       - name: Sync application source
         run: |
           ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH' && test -f '$DEPLOY_PATH/.env'"
-          rsync -az --delete --filter='P /.env' \
+          rsync -az --filter='P /.env' \
             --exclude='.git/' --exclude='**/node_modules/' --exclude='**/bin/' \
             --exclude='**/obj/' --exclude='**/dist/' --exclude='**/publish/' \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
