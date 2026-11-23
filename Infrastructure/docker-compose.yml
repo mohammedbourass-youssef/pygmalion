@@ -32,6 +32,12 @@ services:
       - "127.0.0.1:${API_PORT:-5050}:8080"
     volumes:
       - pygmalion-output:/app/output
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,8 +68,10 @@ services:
       - ${TLS_CERT_PATH:?Set TLS_CERT_PATH in the root .env}:/etc/ssl/cloudflare/pygmalion.pem:ro
       - ${TLS_KEY_PATH:?Set TLS_KEY_PATH in the root .env}:/etc/ssl/cloudflare/pygmalion.key:ro
     depends_on:
-      - interface
-      - backend-api
+      interface:
+        condition: service_started
+      backend-api:
+        condition: service_healthy
 
 volumes:
   pygmalion-postgres:
