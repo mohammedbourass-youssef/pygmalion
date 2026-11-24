@@ -23,8 +23,6 @@ public static class PygmalionTelemetry
         "pygmalion.generation.requests", "1", "Successful fake-data generation requests.");
     private static readonly Counter<long> GenerationFailures = Meter.CreateCounter<long>(
         "pygmalion.generation.failures", "1", "Failed fake-data generation requests.");
-    private static readonly Counter<long> ReusedGenerations = Meter.CreateCounter<long>(
-        "pygmalion.generation.reused", "1", "Requests that reused an existing generated file.");
     private static readonly Counter<long> CappedRequests = Meter.CreateCounter<long>(
         "pygmalion.generation.capped", "1", "Requests whose counts exceeded public caps.");
 
@@ -73,7 +71,4 @@ public static class PygmalionTelemetry
 
     public static void RecordFailure(string language, string phase) =>
         GenerationFailures.Add(1, new TagList { { "language", language }, { "phase", phase } });
-
-    public static void RecordReuse(string language) =>
-        ReusedGenerations.Add(1, new TagList { { "language", language } });
 }

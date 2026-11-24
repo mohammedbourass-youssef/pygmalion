@@ -14,10 +14,6 @@ help:
 
 check-env:
 	@test -f .env || (echo "Missing root .env. Copy .env.example to .env and configure it." && exit 1)
-	@test "$$POSTGRES_PASSWORD" != "CHANGE_ME_BEFORE_DEPLOYMENT" || (echo "Set a unique POSTGRES_PASSWORD in root .env before production." && exit 1)
-	@test "$$POSTGRES_PASSWORD" != "replace-with-a-long-unique-password" || (echo "Replace the sample POSTGRES_PASSWORD before production." && exit 1)
-	@test -n "$$POSTGRES_PASSWORD" || (echo "POSTGRES_PASSWORD is required in root .env." && exit 1)
-	@test $${#POSTGRES_PASSWORD} -ge 24 || (echo "POSTGRES_PASSWORD must contain at least 24 characters." && exit 1)
 	@test "$$SEQ_ADMIN_PASSWORD" != "CHANGE_ME_BEFORE_DEPLOYMENT" || (echo "Set a unique SEQ_ADMIN_PASSWORD in root .env before production." && exit 1)
 	@test $${#SEQ_ADMIN_PASSWORD} -ge 24 || (echo "SEQ_ADMIN_PASSWORD must contain at least 24 characters." && exit 1)
 	@test "$$GRAFANA_ADMIN_PASSWORD" != "CHANGE_ME_BEFORE_DEPLOYMENT" || (echo "Set a unique GRAFANA_ADMIN_PASSWORD in root .env before production." && exit 1)

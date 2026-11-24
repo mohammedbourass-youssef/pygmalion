@@ -1,20 +1,4 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: pygmalion-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env}
-      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
-    volumes:
-      - pygmalion-postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-
   backend-api:
     build:
       context: ..
@@ -24,7 +8,6 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_HTTP_PORTS: 8080
-      ConnectionStrings__Pygmalion: Host=postgres;Port=5432;Database=${POSTGRES_DB:?Set POSTGRES_DB in the root .env};Username=${POSTGRES_USER:?Set POSTGRES_USER in the root .env};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
       DomaineName: ${API_PUBLIC_HOST:?Set API_PUBLIC_HOST in the root .env}
       UseSsl: ${API_USE_SSL:?Set API_USE_SSL in the root .env}
       GeneratedData__OutputDirectory: ${GeneratedData__OutputDirectory:-output}
@@ -40,9 +23,6 @@ services:
       timeout: 5s
       start_period: 30s
       retries: 5
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   interface:
     build:
@@ -148,7 +128,6 @@ services:
       - tempo
 
 volumes:
-  pygmalion-postgres:
   pygmalion-output:
   pygmalion-seq:
   pygmalion-tempo:

@@ -1,6 +1,6 @@
 {
   "annotations": { "list": [] },
-  "description": "Pygmalion API throughput, generation phase timings, output sizes, failures, and deduplication.",
+  "description": "Pygmalion API throughput, generation phase timings, output sizes, request caps, and failures.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -51,15 +51,6 @@
       "id": 5,
       "targets": [{ "expr": "sum(increase(pygmalion_generation_failures_total{language=~\"$language\"}[1h]))", "refId": "A" }],
       "title": "Generation failures · 1h",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 16 },
-      "id": 6,
-      "targets": [{ "expr": "sum(increase(pygmalion_generation_reused_total{language=~\"$language\"}[1h]))", "refId": "A" }],
-      "title": "Deduplicated requests · 1h",
       "type": "stat"
     },
     {

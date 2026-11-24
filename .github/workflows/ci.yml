@@ -80,12 +80,12 @@ jobs:
           cd "$DEPLOY_PATH"
           if ! docker compose --env-file .env -f Infrastructure/docker-compose.yml up -d --build; then
             docker compose --env-file .env -f Infrastructure/docker-compose.yml ps || true
-            docker compose --env-file .env -f Infrastructure/docker-compose.yml logs --no-color --tail=100 postgres backend-api interface nginx || true
+            docker compose --env-file .env -f Infrastructure/docker-compose.yml logs --no-color --tail=100 backend-api interface nginx || true
             exit 1
           fi
           if ! docker compose --env-file .env -f Infrastructure/docker-compose.yml exec -T nginx nginx -t; then
             docker compose --env-file .env -f Infrastructure/docker-compose.yml ps || true
-            docker compose --env-file .env -f Infrastructure/docker-compose.yml logs --no-color --tail=100 postgres backend-api interface nginx || true
+            docker compose --env-file .env -f Infrastructure/docker-compose.yml logs --no-color --tail=100 backend-api interface nginx || true
             exit 1
           fi
           REMOTE

@@ -13,7 +13,6 @@ public sealed class FakeDateGenenratedController(
     CodeParsingService codeParsingService,
     IConfiguration configuration,
     IFakeDataGenerator fakeDataGenerator,
-    IGeneratedDataService generatedDataService,
     ILogger<FakeDateGenenratedController> logger) : ControllerBase
 {
     [HttpGet]
@@ -87,29 +86,37 @@ public sealed class FakeDateGenenratedController(
                 return BadRequest(new { message = "Some referenced classes were not provided.", missingClasses });
             }
 
-            var generated = await generatedDataService.GenerateOrReuseAsync(
-                request.Language,
-                request.Code,
-                classes,
-                rootCount,
-                nestedCount,
-                HttpContext.RequestAborted);
+            var outputDirectory = configuration["GeneratedData:OutputDirectory"] ?? "output";
+            var generationTimer = Stopwatch.StartNew();
+            Guid fileId;
+            using (PygmalionTelemetry.ActivitySource.StartActivity("pygmalion.file.generate"))
+            {
+                fileId = await fakeDataGenerator.GenerateAndSaveJsonAsync(
+                    classes,
+                    rootCount,
+                    nestedCount,
+                    outputDirectory);
+            }
+            generationTimer.Stop();
+            PygmalionTelemetry.RecordPhase(language, "fake_data_and_file_write", generationTimer.Elapsed.TotalMilliseconds);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), outputDirectory, $"{fileId:D}.json");
+            PygmalionTelemetry.RecordOutputBytes(language, new FileInfo(filePath).Length);
             totalTimer.Stop();
             PygmalionTelemetry.RecordPhase(language, "total", totalTimer.Elapsed.TotalMilliseconds);
             PygmalionTelemetry.RecordRequest(language);
-            activity?.SetTag("pygmalion.file_id", generated.Id);
+            activity?.SetTag("pygmalion.file_id", fileId);
             logger.LogInformation(
-                "Generation completed. Language={Language} FileId={FileId} CodeHash={CodeHash} RequestedRootCount={RequestedRootCount} RootCount={RootCount} RequestedNestedCount={RequestedNestedCount} NestedCount={NestedCount} TotalDurationMs={TotalDurationMs}",
+                "Generation completed. Language={Language} FileId={FileId} RequestedRootCount={RequestedRootCount} RootCount={RootCount} RequestedNestedCount={RequestedNestedCount} NestedCount={NestedCount} GenerationDurationMs={GenerationDurationMs} TotalDurationMs={TotalDurationMs}",
                 language,
-                generated.Id,
-                generated.CodeHash,
+                fileId,
                 requestedRootCount,
                 rootCount,
                 requestedNestedCount,
                 nestedCount,
+                generationTimer.Elapsed.TotalMilliseconds,
                 totalTimer.Elapsed.TotalMilliseconds);
             string schema = configuration["UseSsl"] == "true" ? "https" : "http";
-            string fileInternetPath = $"{schema}://{configuration["DomaineName"]}/api/v1/Pygmalion/{generated.Id}";
+            string fileInternetPath = $"{schema}://{configuration["DomaineName"]}/api/v1/Pygmalion/{fileId}";
             return Ok(fileInternetPath);
         }
         catch (ArgumentException ex)
