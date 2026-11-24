@@ -16,9 +16,9 @@ public class FakeDataRequestDto
     [Required]
     public string Code { get; set; } = string.Empty;
 
-    [Range(1, 10000)]
+    [Range(1, int.MaxValue)]
     public int NumberOfRoots { get; set; } = 10;
 
-    [Range(1, 10000)]
-    public int CountNested { get; set; } = 40;
+    [Range(1, int.MaxValue)]
+    public int CountNested { get; set; } = 20;
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -12,8 +13,11 @@ namespace Backend_Api.Services;
 public sealed class GeneratedDataService(
     PygmalionDbContext dbContext,
     IFakeDataGenerator fakeDataGenerator,
-    IConfiguration configuration) : IGeneratedDataService
+    IConfiguration configuration,
+    ILogger<GeneratedDataService> logger) : IGeneratedDataService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+
     private readonly string _outputDirectory = Path.GetFullPath(Path.Combine(
         Directory.GetCurrentDirectory(),
         configuration["GeneratedData:OutputDirectory"] ?? "output"));
@@ -36,13 +40,28 @@ public sealed class GeneratedDataService(
         });
         var codeHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(inputIdentity)));
 
-        var existing = await dbContext.DataGenerated.SingleOrDefaultAsync(
-            item => item.CodeHash == codeHash,
-            cancellationToken);
+        var lookupTimer = Stopwatch.StartNew();
+        DataGenerated? existing;
+        using (PygmalionTelemetry.ActivitySource.StartActivity("pygmalion.deduplication.lookup"))
+        {
+            existing = await dbContext.DataGenerated.SingleOrDefaultAsync(
+                item => item.CodeHash == codeHash,
+                cancellationToken);
+        }
+        lookupTimer.Stop();
+        PygmalionTelemetry.RecordPhase(normalizedLanguage, "dedupe_lookup", lookupTimer.Elapsed.TotalMilliseconds);
+
         if (existing is not null)
         {
+            PygmalionTelemetry.RecordReuse(normalizedLanguage);
+            logger.LogInformation(
+                "Reusing saved generation. Language={Language} FileId={FileId} CodeHash={CodeHash} LookupDurationMs={LookupDurationMs}",
+                normalizedLanguage,
+                existing.Id,
+                codeHash,
+                lookupTimer.Elapsed.TotalMilliseconds);
             if (!File.Exists(existing.FilePath))
-                await WritePayloadAsync(existing.FilePath, classes, count, nestedCount, cancellationToken);
+                await WritePayloadAsync(existing.FilePath, classes, normalizedLanguage, count, nestedCount, cancellationToken);
             return existing;
         }
 
@@ -71,7 +90,10 @@ public sealed class GeneratedDataService(
         {
             // Reserve the unique hash before creating a file. Concurrent duplicate requests
             // converge on the winning database row and therefore the same GUID/path.
+            var reserveTimer = Stopwatch.StartNew();
             await dbContext.SaveChangesAsync(cancellationToken);
+            reserveTimer.Stop();
+            PygmalionTelemetry.RecordPhase(normalizedLanguage, "database_reservation", reserveTimer.Elapsed.TotalMilliseconds);
         }
         catch (DbUpdateException exception) when (IsUniqueViolation(exception))
         {
@@ -82,13 +104,13 @@ public sealed class GeneratedDataService(
             if (winner is null)
                 throw;
             if (!File.Exists(winner.FilePath))
-                await WritePayloadAsync(winner.FilePath, classes, count, nestedCount, cancellationToken);
+                await WritePayloadAsync(winner.FilePath, classes, normalizedLanguage, count, nestedCount, cancellationToken);
             return winner;
         }
 
         try
         {
-            await WritePayloadAsync(filePath, classes, count, nestedCount, cancellationToken);
+            await WritePayloadAsync(filePath, classes, normalizedLanguage, count, nestedCount, cancellationToken);
             return record;
         }
         catch
@@ -102,15 +124,50 @@ public sealed class GeneratedDataService(
     private async Task WritePayloadAsync(
         string filePath,
         Dictionary<int, ExtractedClass> classes,
+        string language,
         int count,
         int nestedCount,
         CancellationToken cancellationToken)
     {
-        var json = JsonSerializer.Serialize(
-            fakeDataGenerator.GenerateFakeData(classes, count, nestedCount),
-            new JsonSerializerOptions { WriteIndented = true });
+        var generateTimer = Stopwatch.StartNew();
+        List<Dictionary<string, object?>> data;
+        using (PygmalionTelemetry.ActivitySource.StartActivity("pygmalion.fake_data.generate"))
+        {
+            data = fakeDataGenerator.GenerateFakeData(classes, count, nestedCount);
+        }
+        generateTimer.Stop();
+        PygmalionTelemetry.RecordPhase(language, "fake_data_generation", generateTimer.Elapsed.TotalMilliseconds);
+
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-        await File.WriteAllTextAsync(filePath, json, cancellationToken);
+        var serializeWriteTimer = Stopwatch.StartNew();
+        await using (var stream = new FileStream(
+            filePath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 64 * 1024,
+            options: FileOptions.Asynchronous | FileOptions.SequentialScan))
+        {
+            using (PygmalionTelemetry.ActivitySource.StartActivity("pygmalion.json.serialize_write"))
+            {
+                await JsonSerializer.SerializeAsync(stream, data, JsonOptions, cancellationToken);
+                await stream.FlushAsync(cancellationToken);
+            }
+        }
+        serializeWriteTimer.Stop();
+        PygmalionTelemetry.RecordPhase(language, "serialize_write", serializeWriteTimer.Elapsed.TotalMilliseconds);
+        var fileBytes = new FileInfo(filePath).Length;
+        PygmalionTelemetry.RecordOutputBytes(language, fileBytes);
+
+        logger.LogInformation(
+            "Generated JSON file. Language={Language} RootRecords={RootRecords} NestedCount={NestedCount} FileBytes={FileBytes} GenerateDurationMs={GenerateDurationMs} SerializeWriteDurationMs={SerializeWriteDurationMs} FilePath={FilePath}",
+            language,
+            data.Count,
+            nestedCount,
+            fileBytes,
+            generateTimer.Elapsed.TotalMilliseconds,
+            serializeWriteTimer.Elapsed.TotalMilliseconds,
+            filePath);
     }
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>

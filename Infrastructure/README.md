@@ -6,7 +6,7 @@ before running production targets. If setting up from a fresh clone:
 
 ```sh
 cp .env.example .env
-# Set POSTGRES_PASSWORD to a unique secret before production.
+# Set POSTGRES_PASSWORD, SEQ_ADMIN_PASSWORD, and GRAFANA_ADMIN_PASSWORD to unique secrets before production.
 ```
 
 From the repository root, run the production checks/builds and container build:
@@ -24,6 +24,10 @@ make up
 - Container UI: http://localhost:3000 (local interface check)
 - API: http://127.0.0.1:5050 (local API check)
 - Production site: https://pygmalion.mohammedbourass.me (Nginx container on ports 80/443)
+- Seq logs: http://127.0.0.1:5341
+- Grafana: https://pygmalion.mohammedbourass.me/Grafana/ (Pygmalion · Generation Overview dashboard)
+- Prometheus: http://127.0.0.1:9090
+- Tempo traces: http://127.0.0.1:3200
 - PostgreSQL: private to the Compose network (database `pygmalion`)
 
 Compose stores PostgreSQL data in `pygmalion-postgres` and generated JSON files
@@ -31,6 +35,16 @@ in `pygmalion-output`. The Compose API and interface ports bind to localhost;
 the Nginx container is the public TLS reverse proxy for the interface and API.
 Place the Cloudflare origin certificate and key on the server at the paths set by
 `TLS_CERT_PATH` and `TLS_KEY_PATH` in `.env` before starting the stack.
+
+The API sends structured logs to Seq and OpenTelemetry traces/metrics through
+the Collector. Prometheus scrapes the Collector's metrics; Grafana is provisioned
+with Prometheus and Tempo data sources and the generation dashboard. It charts
+parse, fake-data synthesis, serialization/file-write, deduplication lookup, output
+size, request volume, capped requests, and errors. Configure unique
+`SEQ_ADMIN_PASSWORD` and `GRAFANA_ADMIN_PASSWORD` values in `.env`. Seq,
+Prometheus, and Tempo stay localhost-only; Grafana is publicly reachable through
+the Nginx `/Grafana/` route and uses its own login. Set `GRAFANA_ROOT_URL` when
+serving the site from a different hostname.
 
 The API creates the initial EF Core schema at startup. Each saved generation is
 indexed by a SHA-256 hash of language, source code, root count, and nested count.

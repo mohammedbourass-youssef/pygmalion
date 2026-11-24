@@ -28,6 +28,8 @@ services:
       DomaineName: ${API_PUBLIC_HOST:?Set API_PUBLIC_HOST in the root .env}
       UseSsl: ${API_USE_SSL:?Set API_USE_SSL in the root .env}
       GeneratedData__OutputDirectory: ${GeneratedData__OutputDirectory:-output}
+      OpenTelemetry__Endpoint: ${OpenTelemetry__Endpoint:-http://otel-collector:4317}
+      Seq__ServerUrl: ${Seq__ServerUrl:-http://seq:80}
     ports:
       - "127.0.0.1:${API_PORT:-5050}:8080"
     volumes:
@@ -72,7 +74,83 @@ services:
         condition: service_started
       backend-api:
         condition: service_healthy
+      grafana:
+        condition: service_started
+
+  seq:
+    image: datalust/seq:2025.2
+    container_name: pygmalion-seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: ${SEQ_ADMIN_PASSWORD:?Set SEQ_ADMIN_PASSWORD in the root .env}
+    ports:
+      - "127.0.0.1:5341:80"
+    volumes:
+      - pygmalion-seq:/data
+
+  tempo:
+    image: grafana/tempo:2.8.1
+    container_name: pygmalion-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    ports:
+      - "127.0.0.1:3200:3200"
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - pygmalion-tempo:/var/tempo
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.128.0
+    container_name: pygmalion-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel/collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    depends_on:
+      - tempo
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: pygmalion-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - pygmalion-prometheus:/prometheus
+    depends_on:
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    container_name: pygmalion-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in the root .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://pygmalion.mohammedbourass.me/Grafana/}
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SECURITY_COOKIE_SAMESITE: "Lax"
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - pygmalion-grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+      - tempo
 
 volumes:
   pygmalion-postgres:
   pygmalion-output:
+  pygmalion-seq:
+  pygmalion-tempo:
+  pygmalion-prometheus:
+  pygmalion-grafana:

@@ -21,13 +21,13 @@
 
 ## 30-second demo
 
-> **Demo recording coming soon.** Add a ~30-second GIF or clip at `docs/demo.gif` showing: paste `Person` and `Address` classes → click **Generate data** → show the saved GET URL and generated JSON.
+<video src="Docs/Pygmalion_demo.mp4" controls playsinline width="100%">Your browser does not support embedded video. <a href="Docs/Pygmalion_demo.mp4">Download the Pygmalion demo</a>.</video>
 
 ## What is Pygmalion?
 
 Pygmalion is a free, open-source AST-to-Data synthesis engine. Paste models you already have, choose how many root records and nested items to create, and Pygmalion parses the definitions with Tree-sitter and generates realistic data with Bogus.
 
-Each successful generation is saved as `{Guid}.json` and exposed through a reusable REST `GET` endpoint. Call the URL from your frontend, mobile app, API client, or demo; repeated requests return the same saved dataset. Identical language, source code, and count settings reuse the same generated file.
+Each successful generation is saved as `{Guid}.json` and exposed through a reusable REST `GET` endpoint. Call the URL from your frontend, mobile app, API client, or demo; repeated requests return the same saved dataset. Identical language, source code, and count settings reuse the same generated file. Public requests are capped at 500 root records and 20 nested items; larger values are reduced to those limits before generation.
 
 ## Supported languages
 
@@ -58,7 +58,7 @@ Requirements: Docker Engine with the Compose plugin.
 cp .env.example .env
 ```
 
-Set a unique `POSTGRES_PASSWORD` in `.env`, then run the production checks and build:
+Set unique `POSTGRES_PASSWORD`, `SEQ_ADMIN_PASSWORD`, and `GRAFANA_ADMIN_PASSWORD` values in `.env`, then run the production checks and build:
 
 ```sh
 make prod
@@ -67,6 +67,9 @@ make up
 
 - UI: <http://localhost:3000>
 - API: <http://127.0.0.1:5050>
+- Seq logs: <http://127.0.0.1:5341>
+- Grafana dashboards: <https://pygmalion.mohammedbourass.me/Grafana/> (or <http://127.0.0.1:3001> locally)
+- Prometheus: <http://127.0.0.1:9090>
 
 Generated files and Postgres data are stored in persistent Docker volumes. To stop the stack:
 
@@ -96,6 +99,7 @@ curl https://pygmalion.mohammedbourass.me/api/v1/Pygmalion/GUID
 - **Persistence:** EF Core, PostgreSQL, SHA-256 input deduplication
 - **Interface:** React, TypeScript, Vite
 - **Operations:** Docker Compose, Nginx, GitHub Actions
+- **Observability:** Serilog, Seq, OpenTelemetry, Tempo, Prometheus, Grafana
 
 ## Roadmap
 

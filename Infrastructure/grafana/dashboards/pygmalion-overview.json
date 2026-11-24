@@ -1,0 +1,106 @@
+{
+  "annotations": { "list": [] },
+  "description": "Pygmalion API throughput, generation phase timings, output sizes, failures, and deduplication.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    { "title": "Open traces", "type": "link", "url": "/Grafana/explore?schemaVersion=1&panes=%7B%22traces%22%3A%7B%22datasource%22%3A%22tempo%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22%7Bresource.service.name%3D%5C%22pygmalion-backend-api%5C%22%7D%22%7D%5D%7D%7D" }
+  ],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "sum by (language) (rate(pygmalion_generation_requests_total{language=~\"$language\"}[5m]))", "legendFormat": "{{language}}", "refId": "A" }],
+      "title": "Generation throughput",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 },
+      "id": 2,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, phase, language) (rate(pygmalion_generation_phase_duration_milliseconds_bucket{language=~\"$language\"}[5m])))", "legendFormat": "{{language}} · p95 {{phase}}", "refId": "A" }],
+      "title": "Generation phase latency · p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "sum by (phase) (rate(pygmalion_generation_phase_duration_milliseconds_sum{language=~\"$language\"}[5m])) / sum by (phase) (rate(pygmalion_generation_phase_duration_milliseconds_count{language=~\"$language\"}[5m]))", "legendFormat": "{{phase}}", "refId": "A" }],
+      "title": "Average phase time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "B" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, language) (rate(pygmalion_generation_output_size_bytes_bucket{language=~\"$language\"}[5m])))", "legendFormat": "{{language}} p95", "refId": "A" }],
+      "title": "Generated JSON size · p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 16 },
+      "id": 5,
+      "targets": [{ "expr": "sum(increase(pygmalion_generation_failures_total{language=~\"$language\"}[1h]))", "refId": "A" }],
+      "title": "Generation failures · 1h",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 16 },
+      "id": 6,
+      "targets": [{ "expr": "sum(increase(pygmalion_generation_reused_total{language=~\"$language\"}[1h]))", "refId": "A" }],
+      "title": "Deduplicated requests · 1h",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 16 },
+      "id": 7,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, language) (rate(pygmalion_generation_root_records_bucket{stage=\"effective\",language=~\"$language\"}[5m])))", "legendFormat": "{{language}} p95", "refId": "A" }],
+      "title": "Root records per request · p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }] }, "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 21 },
+      "id": 8,
+      "targets": [{ "expr": "sum(increase(pygmalion_generation_capped_total{language=~\"$language\"}[1h]))", "refId": "A" }],
+      "title": "Capped requests · 1h",
+      "type": "stat"
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["pygmalion", "aspnetcore", "opentelemetry"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "includeAll": true,
+        "label": "Language",
+        "multi": true,
+        "name": "language",
+        "query": "label_values(pygmalion_generation_requests_total, language)",
+        "refresh": 2,
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "prometheus" }
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Pygmalion · Generation Overview",
+  "uid": "pygmalion-generation-overview",
+  "version": 1
+}
