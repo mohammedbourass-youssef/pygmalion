@@ -68,10 +68,11 @@ jobs:
       - name: Sync application source
         run: |
           ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH' && test -f '$DEPLOY_PATH/.env'"
-          rsync -az --delete --filter='P /.env' \
+          rsync -az --filter='P /.env' \
             --exclude='.git/' --exclude='**/node_modules/' --exclude='**/bin/' \
             --exclude='**/obj/' --exclude='**/dist/' --exclude='**/publish/' \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "rm -f '$DEPLOY_PATH/Backend-Api/Data/PygmalionDbContext.cs' '$DEPLOY_PATH/Backend-Api/Models/DataGenerated.cs' '$DEPLOY_PATH/Backend-Api/Services/GeneratedDataService.cs' '$DEPLOY_PATH/Backend-Api/Services/IGeneratedDataService.cs' '$DEPLOY_PATH/Backend-Api/Backend-Api.Tests/GeneratedDataServiceTests.cs'; rmdir '$DEPLOY_PATH/Backend-Api/Data' '$DEPLOY_PATH/Backend-Api/Models' 2>/dev/null || true"
 
       - name: Deploy containers, including Nginx
         run: |
