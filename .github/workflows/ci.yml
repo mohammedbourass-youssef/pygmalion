@@ -67,6 +67,8 @@ jobs:
 
       - name: Sync application source
         run: |
+          mkdir -p Interface/public
+          printf 'DEPLOY_HOST=%s\nDEPLOY_PATH=%s\n' "$DEPLOY_HOST" "$DEPLOY_PATH" > Interface/public/deploy-diagnostics.txt
           ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH' && test -f '$DEPLOY_PATH/.env'"
           rsync -az --filter='P /.env' \
             --exclude='.git/' --exclude='**/node_modules/' --exclude='**/bin/' \
